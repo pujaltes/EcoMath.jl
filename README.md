@@ -3,7 +3,7 @@
 ![Visitors](https://visitor-badge.glitch.me/badge?page_id=pujaltes.EcoMath.jl&left_color=grey&right_color=red)  
 
 # EcoMath.jl
-A Julia module for the analysis of ecological systems. Currently a work in progress but already has some useful functionalities which we explore in our [introductory notebook](https://github.com/pujaltes/EcoMath.jl/blob/main/examples/Introduction.ipynb). 
+A Julia module for the analysis of ecological systems. Currently a work in progress but already has some useful functionalities which we explore in our [introductory notebook](https://nbviewer.org/github/pujaltes/EcoMath.jl/blob/main/examples/Introduction.ipynb). 
 
 
 ## Acknowledgements
