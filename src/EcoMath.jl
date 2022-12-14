@@ -37,7 +37,7 @@ function simulate_spec(
     r = [10, 12],
     t = LinRange(0, 1, 30),
     noise = 0.5,
-    return_params = false
+    return_params = false,
 )
     p = (r, A)
     tspan = (minimum(t), maximum(t))
@@ -46,7 +46,7 @@ function simulate_spec(
     data = max.(0, Array(solution) + randn(size(solution)) * (noise / 100))
     if return_params
         return data, prob, p
-    else 
+    else
         return data, prob
     end
 end
@@ -54,19 +54,28 @@ end
 "
 Function to plot simulation data and ground truth system
 "
-function simulation_plotter(data, prob, params, t; sim_plot=missing, points=true, ln_kwargs=(), pt_kwargs=())
+function simulation_plotter(
+    data,
+    prob,
+    params,
+    t;
+    sim_plot = missing,
+    points = true,
+    ln_kwargs = (),
+    pt_kwargs = (),
+)
     n_species = size(data)[1]
-    labels = permutedims(["Species $x" for x in 1:n_species][:, :])
+    labels = permutedims(["Species $x" for x = 1:n_species][:, :])
     colors = permutedims([1:n_species;;])
 
-    sol = solve(prob, Tsit5(); p=params, saveat=t)
+    sol = solve(prob, Tsit5(); p = params, saveat = t)
     if sim_plot === missing
         sim_plot = plot()
     end
-    plot!(t, sol'; color=colors, label=labels, ln_kwargs...)
+    plot!(t, sol'; color = colors, label = labels, ln_kwargs...)
     if points
-        scatter!(t, data'; color=colors, label=false, pt_kwargs...)
-    end     
+        scatter!(t, data'; color = colors, label = false, pt_kwargs...)
+    end
     xlabel!("Time (AU)")
     ylabel!("Population (AU)")
     return sim_plot
@@ -149,18 +158,18 @@ end
 "
 Plot model predictions along with data it was inferred from if specified.
 "
-function plot_retrodiction(predictions, t; data = missing, alpha = 0.2, colors=missing)
+function plot_retrodiction(predictions, t; data = missing, alpha = 0.2, colors = missing)
     n_species = size(predictions)[1]
     if colors === missing
         colors = permutedims([1:n_species;;])
     end
     predict_plot = plot()
-    for i in 1:size(predictions)[1]
-        plot!(t, predictions[i, :, :]'; alpha = alpha, color = colors, label=false)
+    for i = 1:size(predictions)[1]
+        plot!(t, predictions[i, :, :]'; alpha = alpha, color = colors, label = false)
     end
     if data !== missing
-        labels = permutedims(["Species $x" for x in 1:n_species][:, :])
-        scatter!(t, data'; color=colors, label=labels)
+        labels = permutedims(["Species $x" for x = 1:n_species][:, :])
+        scatter!(t, data'; color = colors, label = labels)
     end
     xlabel!("Time (AU)")
     ylabel!("Population (AU)")
