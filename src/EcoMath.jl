@@ -1,5 +1,3 @@
-module EcoMath
-
 using Turing
 using DifferentialEquations
 using StatsPlots
@@ -37,17 +35,42 @@ function simulate_spec(
     A = [[1 0.4]; [0.5 1]],
     u0 = [0.5, 0.3],
     r = [10, 12],
-    t = LinRange(0, 1, 20),
+    t = LinRange(0, 1, 30),
     noise = 0.5,
+    return_params = false
 )
     p = (r, A)
     tspan = (minimum(t), maximum(t))
     prob = ODEProblem(prob_func, u0, tspan, p)
     solution = Array(solve(prob, Tsit5(); saveat = t))
-    data = max.(0, Array(solution) + randn(size(solution)) * noise)
-    return data, prob
+    data = max.(0, Array(solution) + randn(size(solution)) * (noise / 100))
+    if return_params
+        return data, prob, p
+    else 
+        return data, prob
+    end
 end
 
+"
+Function to plot simulation data and ground truth system
+"
+function simulation_plotter(data, prob, params, t; sim_plot=missing, points=true, ln_kwargs=(), pt_kwargs=())
+    n_species = size(data)[1]
+    labels = permutedims(["Species $x" for x in 1:n_species][:, :])
+    colors = permutedims([1:n_species;;])
+
+    sol = solve(prob, Tsit5(); p=params, saveat=t)
+    if sim_plot === missing
+        sim_plot = plot()
+    end
+    plot!(t, sol'; color=colors, label=labels, ln_kwargs...)
+    if points
+        scatter!(t, data'; color=colors, label=false, pt_kwargs...)
+    end     
+    xlabel!("Time (AU)")
+    ylabel!("Population (AU)")
+    return sim_plot
+end
 
 "
 Modular function to construct and return an ecological 
@@ -126,15 +149,20 @@ end
 "
 Plot model predictions along with data it was inferred from if specified.
 "
-function plot_retrodiction(predictions, t; data = missing, alpha = 0.2)
-    predict_plot = plot(; legend = false)
-    for i in size(predictions)[1]
-        plot!(t, predictions[i, :, :]'; alpha = alpha, color = "#BBBBBB")
+function plot_retrodiction(predictions, t; data = missing, alpha = 0.2, colors=missing)
+    n_species = size(predictions)[1]
+    if colors === missing
+        colors = permutedims([1:n_species;;])
+    end
+    predict_plot = plot()
+    for i in 1:size(predictions)[1]
+        plot!(t, predictions[i, :, :]'; alpha = alpha, color = colors, label=false)
     end
     if data !== missing
-        scatter!(t, data'; color = Matrix([1:size(data)[1];;]'))
+        labels = permutedims(["Species $x" for x in 1:n_species][:, :])
+        scatter!(t, data'; color=colors, label=labels)
     end
+    xlabel!("Time (AU)")
+    ylabel!("Population (AU)")
     return predict_plot
-end
-
 end
